@@ -27,11 +27,18 @@ public:
     void Set(bool state);
     void Toggle(void);
 
+    void Blink(uint32_t changeRateMS);
+    void Blink(uint32_t onTimeMS, uint32_t offTimeMS);
+    void Animate();
+
     void UpdateState();
     bool IsTurnedOn(void);
 
 private:
     bool mState;
+    int64_t mLastChangeTimeUS;
+    uint32_t mBlinkOnTimeMS;
+    uint32_t mBlinkOffTimeMS;
 
     void DoSet(void);
 };

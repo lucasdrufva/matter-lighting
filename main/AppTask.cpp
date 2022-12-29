@@ -90,6 +90,8 @@ void AppTask::AppTaskMain(void * pvParameter)
 
     while (true)
     {
+        AppLED.Animate();
+
         BaseType_t eventReceived = xQueueReceive(sAppEventQueue, &event, pdMS_TO_TICKS(10));
         while (eventReceived == pdTRUE)
         {

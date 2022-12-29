@@ -18,6 +18,7 @@
  */
 
 #include "LEDWidget.h"
+#include "esp_timer.h"
 
 #define RELAY_PIN GPIO_NUM_27
 
@@ -36,6 +37,8 @@ void LEDWidget::Set(bool state)
         return;
 
     mState = state;
+
+    mBlinkOnTimeMS = mBlinkOffTimeMS = 0;
 
     DoSet();
 }
@@ -57,4 +60,32 @@ bool LEDWidget::IsTurnedOn()
 void LEDWidget::DoSet(void)
 {
     gpio_set_level(RELAY_PIN, mState);
+}
+
+void LEDWidget::Blink(uint32_t changeRateMS)
+{
+    Blink(changeRateMS, changeRateMS);
+}
+
+void LEDWidget::Blink(uint32_t onTimeMS, uint32_t offTimeMS)
+{
+    mBlinkOnTimeMS  = onTimeMS;
+    mBlinkOffTimeMS = offTimeMS;
+    Animate();
+}
+
+void LEDWidget::Animate()
+{
+    if (mBlinkOnTimeMS != 0 && mBlinkOffTimeMS != 0)
+    {
+        int64_t nowUS            = ::esp_timer_get_time();
+        int64_t stateDurUS       = ((mState) ? mBlinkOnTimeMS : mBlinkOffTimeMS) * 1000LL;
+        int64_t nextChangeTimeUS = mLastChangeTimeUS + stateDurUS;
+
+        if (nowUS > nextChangeTimeUS)
+        {
+            Toggle();
+            mLastChangeTimeUS = nowUS;
+        }
+    }
 }

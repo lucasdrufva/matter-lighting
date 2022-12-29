@@ -56,6 +56,10 @@ void AppDeviceCallbacks::PostAttributeChangeCallback(EndpointId endpointId, Clus
         OnOnOffPostAttributeChangeCallback(endpointId, attributeId, value);
         break;
 
+    case Identify::Id:
+        OnIdentifyPostAttributeChangeCallback(endpointId, attributeId, size, value);
+        break;
+
     default:
         ESP_LOGI(TAG, "Unhandled cluster ID: %d", clusterId);
         break;
@@ -73,6 +77,25 @@ void AppDeviceCallbacks::OnOnOffPostAttributeChangeCallback(EndpointId endpointI
 
 exit:
     return;
+}
+
+void AppDeviceCallbacks::OnIdentifyPostAttributeChangeCallback(EndpointId endpointId, AttributeId attributeId, uint16_t size,
+                                                               uint8_t * value)
+{
+    if (attributeId == Identify::Attributes::IdentifyTime::Id && size == 2)
+    {
+        uint16_t identifyTime;
+        memcpy(&identifyTime, value, size);
+        if (identifyTime)
+        {
+            AppLED.Blink(identifyTime);
+        }
+        else
+        {
+            ESP_LOGI(TAG, "Identifying without specified time");
+            AppLED.Blink(500);
+        }
+    }
 }
 
 /** @brief OnOff Cluster Init
