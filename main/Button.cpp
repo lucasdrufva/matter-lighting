@@ -18,6 +18,7 @@
 #include "Button.h"
 #include "esp_attr.h"
 #include "esp_timer.h"
+#include <sys/_stdint.h>
 
 #define BUTTON_PIN GPIO_NUM_21
 
@@ -32,7 +33,7 @@ volatile int64_t debounce_time = 0;
 
 static void IRAM_ATTR gpio_isr_handler(void * arg)
 {
-    if (button_press_handler != nullptr and esp_timer_get_time() - debounce_time > 1000000)
+    if (button_press_handler != nullptr and esp_timer_get_time() - debounce_time > 1'000'000)
     {
         debounce_time = esp_timer_get_time();
         button_press_handler();

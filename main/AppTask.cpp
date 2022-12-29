@@ -147,6 +147,10 @@ void AppTask::PostEvent(const AppEvent * aEvent)
                 }
             }
         }
+        else
+        {
+            ESP_LOGE(TAG, "Event Queue is NULL should never happen");
+        }
 
         //ESP_LOGE(TAG, "Event Queue is NULL should never happen");
     }
