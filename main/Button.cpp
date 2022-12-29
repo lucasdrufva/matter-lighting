@@ -16,6 +16,7 @@
  */
 
 #include "Button.h"
+#include "driver/gpio.h"
 #include "esp_attr.h"
 #include "esp_timer.h"
 #include <sys/_stdint.h>
@@ -27,16 +28,17 @@
 
 static const char * TAG = "Button";
 
-static Button::ButtonPressCallback button_press_handler = nullptr;
+static Button::ButtonPressCallback button_press_short_handler = nullptr;
+static Button::ButtonPressCallback button_press_reset_handler = nullptr;
 
 volatile int64_t debounce_time = 0;
 
 static void IRAM_ATTR gpio_isr_handler(void * arg)
 {
-    if (button_press_handler != nullptr and esp_timer_get_time() - debounce_time > 1'000'000)
+    if (button_press_short_handler != nullptr and esp_timer_get_time() - debounce_time > 1'000'000)
     {
         debounce_time = esp_timer_get_time();
-        button_press_handler();
+        button_press_short_handler();
     }
 }
 
@@ -62,13 +64,27 @@ void Button::Init()
     gpio_isr_handler_add(static_cast<gpio_num_t>(BUTTON_PIN), gpio_isr_handler, (void *) BUTTON_PIN);
 
     ESP_LOGI(TAG, "Button initialized..");
+
+    if(gpio_get_level(BUTTON_PIN) == 1)
+    {
+        button_press_reset_handler();
+    }
 }
 
-void Button::SetButtonPressCallback(ButtonPressCallback button_callback)
+void Button::SetButtonPressShortCallback(ButtonPressCallback button_callback)
 {
     if (button_callback != nullptr)
     {
-        ESP_LOGI(TAG, "Button callback is now set");
-        button_press_handler = button_callback;
+        ESP_LOGI(TAG, "Button short callback is now set");
+        button_press_short_handler = button_callback;
+    }
+}
+
+void Button::SetButtonPressResetCallback(ButtonPressCallback button_callback)
+{
+    if (button_callback != nullptr)
+    {
+        ESP_LOGI(TAG, "Button reset callback is now set");
+        button_press_reset_handler = button_callback;
     }
 }

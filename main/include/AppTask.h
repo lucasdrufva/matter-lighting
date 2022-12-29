@@ -56,8 +56,10 @@ private:
     void DispatchEvent(AppEvent * event);
     static void SwitchActionEventHandler(AppEvent * aEvent);
     static void LightingActionEventHandler(AppEvent * aEvent);
+    static void FactoryResetEventHandler(AppEvent * aEvent);
 
-    static void ButtonPressCallback();
+    static void ButtonPressShortCallback();
+    static void ButtonPressResetCallback();
 
     static AppTask sAppTask;
 };

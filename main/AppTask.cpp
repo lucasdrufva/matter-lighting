@@ -19,6 +19,8 @@
 #include "AppTask.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "platform/ConfigurationManager.h"
+#include "platform/PlatformManager.h"
 
 #include <app-common/zap-generated/attribute-id.h>
 #include <app-common/zap-generated/attribute-type.h>
@@ -68,10 +70,11 @@ CHIP_ERROR AppTask::Init()
 {
     CHIP_ERROR err = CHIP_NO_ERROR;
 
+    AppButton.SetButtonPressResetCallback(ButtonPressResetCallback);
+    AppButton.SetButtonPressShortCallback(ButtonPressShortCallback);
+    
     AppLED.Init();
     AppButton.Init();
-
-    AppButton.SetButtonPressCallback(ButtonPressCallback);
 
     return err;
 }
@@ -176,13 +179,27 @@ void AppTask::LightingActionEventHandler(AppEvent * aEvent)
     chip::DeviceLayer::PlatformMgr().UnlockChipStack();
 }
 
-void AppTask::ButtonPressCallback()
+void AppTask::FactoryResetEventHandler(AppEvent * aEvent)
+{
+    chip::DeviceLayer::ConfigurationMgr().InitiateFactoryReset();
+}
+
+void AppTask::ButtonPressShortCallback()
 {
     AppEvent button_event;
     button_event.Type     = AppEvent::kEventType_Button;
     button_event.mHandler = AppTask::LightingActionEventHandler;
     sAppTask.PostEvent(&button_event);
 }
+
+void AppTask::ButtonPressResetCallback()
+{
+    AppEvent button_event;
+    button_event.Type     = AppEvent::kEventType_Button;
+    button_event.mHandler = AppTask::FactoryResetEventHandler;
+    sAppTask.PostEvent(&button_event);
+}
+
 
 void AppTask::UpdateClusterState()
 {

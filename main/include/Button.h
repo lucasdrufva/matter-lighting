@@ -26,5 +26,6 @@ public:
     typedef void (*ButtonPressCallback)(void);
 
     void Init(void);
-    void SetButtonPressCallback(ButtonPressCallback button_callback);
+    void SetButtonPressShortCallback(ButtonPressCallback button_callback);
+    void SetButtonPressResetCallback(ButtonPressCallback button_callback);
 };
